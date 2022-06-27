@@ -2,6 +2,13 @@ import streamlit as st
 import scraper.quorascraper as qs
 import chime
 
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
 chime.theme('material')
 
 st.title("Web Quorler")
