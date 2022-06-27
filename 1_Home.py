@@ -9,9 +9,8 @@ st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 st.markdown("""
 # Home
-Welcome to the Inclusive Language API data website thingy! At the moment we have:
-* A text tagging section (Text Tagger)
+Welcome to this data collector/tagger! At the moment we have:
 * A Quora crawler (Web Quorler - get it?)
-
-More things should appear as we go, but I can't make any promises!
+* A sentence selection section (Sentence Selector)
+* A text tagging section (Text Tagger)
 """)
