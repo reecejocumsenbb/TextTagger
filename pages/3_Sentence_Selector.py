@@ -1,6 +1,13 @@
 import json
 import streamlit as st
 
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
 def reset_indices():
     st.session_state.string_i = 0
     st.session_state.key_i = 0
