@@ -13,4 +13,5 @@ Welcome to this data collector/tagger! At the moment we have:
 * A Quora crawler (Web Quorler - get it?)
 * A sentence selection section (Sentence Selector)
 * A text tagging section (Text Tagger)
+* A testing page for NLP library spaCy (spaCy Test)
 """)
