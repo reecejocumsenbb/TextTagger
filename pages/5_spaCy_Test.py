@@ -3,8 +3,6 @@ import streamlit as st
 import spacy
 import pandas as pd
 
-os.system("python -m spacy download en_core_web_sm")
-
 def define_matcher(nlp):
     # region getting toi
     st.session_state.use_default = st.checkbox("Use defaults", value=True)
@@ -49,6 +47,7 @@ def define_matcher(nlp):
     return matcher
 
 def chunkify(string: str):
+    os.system("python -m spacy download en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(string)
 
