@@ -1,4 +1,5 @@
 import os
+import subprocess
 import streamlit as st
 import spacy
 import pandas as pd
@@ -47,7 +48,9 @@ def define_matcher(nlp):
     return matcher
 
 def chunkify(string: str):
-    os.system("python -m spacy download en_core_web_sm")
+    process = subprocess.Popen("python -m spacy download en_core_web_sm")
+    process.wait()
+    #os.system("python -m spacy download en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(string)
 
