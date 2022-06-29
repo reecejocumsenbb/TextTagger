@@ -26,7 +26,7 @@ def define_matcher(nlp):
             [
                 {'POS': {'IN': ['AUX', 'VERB']}, 'OP': '?'},
                 {'POS': 'DET', 'OP': '?'},
-                {'POS':'NOUN', 'TEXT': {'IN': st.session_state.toi}}
+                {'POS': {'IN': ['NOUN', 'PROPN']}, 'TEXT': {'IN': st.session_state.toi}}
             ],
             [
                 {'POS': {'IN': ['AUX', 'VERB']}, 'OP': '?'},
