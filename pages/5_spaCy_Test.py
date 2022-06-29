@@ -49,7 +49,7 @@ def define_matcher(nlp):
 
 def chunkify(string: str):
     process = subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"])
-    process.wait()
+    #process.wait()
     #os.system("python -m spacy download en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(string)
