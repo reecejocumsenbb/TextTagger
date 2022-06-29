@@ -5,3 +5,4 @@ tqdm
 chime
 spacy
 pandas
+autopep-8
