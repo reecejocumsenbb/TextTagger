@@ -5,6 +5,7 @@ import time
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from tqdm import tqdm
+from webdriver_manager.firefox import GeckoDriverManager
 
 
 class QuoraScraper():
@@ -26,9 +27,10 @@ class QuoraScraper():
     def scrape(self):
         options = webdriver.FirefoxOptions()
         options.headless = True
+        service = webdriver.firefox.service.Service(GeckoDriverManager().install())
         driver = webdriver.Firefox(
             options=options,
-            executable_path='./scraper/geckodriver.exe')
+            service=service)
 
         data = {}
 
