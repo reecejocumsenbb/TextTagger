@@ -1,8 +1,9 @@
-from attr import validate
+import os
 import streamlit as st
 import spacy
 import pandas as pd
-import en_core_web_sm
+
+os.system("python -m spacy download en_core_web_sm")
 
 def define_matcher(nlp):
     # region getting toi
@@ -48,7 +49,7 @@ def define_matcher(nlp):
     return matcher
 
 def chunkify(string: str):
-    nlp = en_core_web_sm.load()
+    nlp = spacy.load("en_core_web_sm")
     doc = nlp(string)
 
     st.header("Noun Chunks")
