@@ -28,7 +28,7 @@ if not st.session_state.use_default:
 if file is not None:
     st.write('file get')
 
-    st.session_state.toi = file.read().split('\n')
+    st.session_state.toi = file.getvalue().decode('utf-8').split('\n')
 
 elif st.session_state.use_default:
     file = None
