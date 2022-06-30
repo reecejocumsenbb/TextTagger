@@ -44,7 +44,7 @@ def define_matcher(nlp):
     st.text(patterns)
 
     matcher = spacy.matcher.Matcher(nlp.vocab, validate=True)
-    matcher.add(["pattern1", "pattern2", "pattern3"], patterns)
+    matcher.add(["pattern1"], patterns)
     return matcher
 
 def chunkify(string: str):
