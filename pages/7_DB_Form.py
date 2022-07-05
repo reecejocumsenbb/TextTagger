@@ -21,9 +21,12 @@ def pull_samples():
             },
             ":throw": {
                 'BOOL': False
+            },
+            ":review": {
+                'BOOL': False
             }
         },
-        FilterExpression='labelled = :labelled AND throw = :throw',
+        FilterExpression='labelled = :labelled AND throw = :throw AND review = :review',
         TableName=tableName,
     )
 
@@ -125,6 +128,7 @@ def update_screen():
 
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
+    print(uniqueIdOut)
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
 
