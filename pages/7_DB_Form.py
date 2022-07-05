@@ -110,10 +110,14 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
     )
     return response
 
+import random
 
 try: len(st.session_state["items"])
 except: 
-    st.session_state["items"] = pull_samples()['Items']
+    out = pull_samples()['Items']
+    random.shuffle(out)
+    st.session_state["items"] = out
+
 
 
 categories = []
