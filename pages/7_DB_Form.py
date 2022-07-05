@@ -8,19 +8,22 @@ import boto3
 tableName = "theFieldInclusiveLanguageToolLabelling"
 
 ## dynamo functions to refactor
-
 def pull_samples():
+    print("PULLING NEW EXAMPLES FROM THE DB")
     # Get a batch of samples that are not yet labelled
     client = boto3.client('dynamodb')
 
     indexName = 'labelled'
     response = client.scan(
         ExpressionAttributeValues = {
-            ":a": {
+            ":labelled": {
                 'BOOL': False
             },
+            ":throw": {
+                'BOOL': False
+            }
         },
-        FilterExpression='labelled = :a',
+        FilterExpression='labelled = :labelled AND throw = :throw',
         TableName=tableName,
     )
 
@@ -48,6 +51,8 @@ def update_throw(uniqueID):
         UpdateExpression='SET #throw = :throw'
     )
 
+    return response
+
 def update_mark_for_review(uniqueID):
 
     client = boto3.client('dynamodb')
@@ -67,7 +72,9 @@ def update_mark_for_review(uniqueID):
             }
         },
         UpdateExpression='SET #review = :review'
-)
+    )
+    return response
+
 
 def update_db(uniqueID, classifications, labelled, sanitisedSentence):
 
@@ -98,12 +105,12 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
         },
         UpdateExpression='SET #labelled = :labelled, #classifications = :classifications, #sanitisedSentence = :sanitisedSentence'
     )
+    return response
 
 
-
-
-items = pull_samples()['Items']
-
+try: len(st.session_state["items"])
+except: 
+    st.session_state["items"] = pull_samples()['Items']
 
 
 categories = []
@@ -111,19 +118,17 @@ categories = []
 with open('categories.txt', 'r') as category_file:
     categories = category_file.read().split('\n') 
 
-
-
-
 try: print(st.session_state.items_i)
 except: st.session_state.items_i = 0
 
-# st.markdown(st.session_state.items_i)
-# if item_i is None:/
-
 def update_screen():
 
-    string_uid.markdown(f"#### Sentence: {items[item_i]['uniqueID']['S']}")
-    string_to_see.markdown(f'>{items[item_i]["sentence"]["S"]}')
+    item_i = st.session_state.items_i
+    uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
+    string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
+    string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
+
+st.markdown("#### Instructions")
 
 
 
@@ -131,15 +136,19 @@ with st.form("my_form", clear_on_submit=True):
 
     item_i = st.session_state.items_i
 
+    print('working with item: ' + str(item_i))
+    print(st.session_state["items"][item_i])
+    print('___')
 
     string_uid = st.empty()
-    string_uid.markdown(f"#### Sentence: {items[item_i]['uniqueID']['S']}")
+    uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
+    string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     
     ## REFERENCE SENTENCE
 
     # subheader = st.subheader(f'Review sentence #{items[item_i]["uniqueID"]["S"]}')
     string_to_see = st.empty()
-    string_to_see.markdown(f'>{items[item_i]["sentence"]["S"]}')
+    string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
 
     ## CHECK-BOXES
     st.markdown("#### Classification categories")
@@ -161,30 +170,35 @@ with st.form("my_form", clear_on_submit=True):
 
     if submitted:
         st.write("Thank you! Database has been updated")
-        st.session_state.items_i += 1
 
         # Setup variables for DB
-        uniqueId = items[item_i]["uniqueID"]["S"]
-        classifications = "".join([categories[i] for i, x in enumerate(category_boxes) if x])
+        uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
+        print(f'updating {uniqueId} in the database')
+        classifications = ",".join([categories[i] for i, x in enumerate(category_boxes) if x])
         labelled = True
         sanitisedSentence = text
 
-        update_db(uniqueId, classifications, labelled, sanitisedSentence)
+        response = update_db(uniqueId, classifications, labelled, sanitisedSentence)
+        # print(response)
+        st.session_state.items_i += 1
         update_screen()
+
     if throw:
         st.write("Thanks, sentence thrown away")
-        st.session_state.items_i += 1
 
-        uniqueId = items[item_i]["uniqueID"]["S"]
-        update_throw(uniqueId)
+        uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
+        print(f'updating {uniqueId} in the database')
+        response = update_throw(uniqueId)
+        # print(response)
+        st.session_state.items_i += 1
         update_screen()
+
     if  review:
         st.write("Sentence has been marked for review")
+
+        uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
+        print(f'updating {uniqueId} in the database')
+        response = update_mark_for_review(uniqueId)
+        # print(response)
         st.session_state.items_i += 1
-
-        uniqueId = items[item_i]["uniqueID"]["S"]
-        update_mark_for_review(uniqueId)
         update_screen()
-
-
-

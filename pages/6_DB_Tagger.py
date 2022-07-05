@@ -25,13 +25,8 @@ def pull_samples():
 
 ### DynamoDB Config
 import boto3
-tableName = "theFieldInclusiveLanguageToolLabelling"
-
 
 ##### Header etc.
-
-
-
 hide_menu_style = """
         <style>
         #MainMenu {visibility: hidden;}
@@ -150,9 +145,6 @@ def update_displayed_sentence():
     subheader = st.subheader(f'Review sentence #{items[item_i]["uniqueID"]["S"]}')
     string_to_see.markdown(f'{items[item_i]["sentence"]["S"]}')
 
-    category_boxes = []
-    for category in categories:
-        category_boxes.append(st.checkbox(category, value=False))
 
 
 
