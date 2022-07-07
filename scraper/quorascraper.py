@@ -29,10 +29,11 @@ class QuoraScraper():
         options = webdriver.FirefoxOptions()
         options.headless = True
         print(f"using webdriver_manager version {webdriver_manager.__version__}")
-        service = webdriver.firefox.service.Service(GeckoDriverManager().install())
+        #service = webdriver.firefox.service.Service(GeckoDriverManager().install())
         driver = webdriver.Firefox(
             options=options,
-            service=service)
+            #service=service)
+            executable_path=GeckoDriverManager().install())
 
         data = {}
 
