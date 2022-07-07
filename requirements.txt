@@ -8,3 +8,4 @@ pandas
 autopep8
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.3.0/en_core_web_sm-3.3.0.tar.gz
 webdriver_manager
+boto3
