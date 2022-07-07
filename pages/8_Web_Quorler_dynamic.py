@@ -18,6 +18,7 @@ text = text_to_change.text_area(label="Put phrases to search here")
 chime.theme('material')
 
 st.title("Web Quorler")
+
 st.header("Parameters")
 
 if 'toi' not in st.session_state:
