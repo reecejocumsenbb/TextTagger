@@ -184,7 +184,7 @@ with st.form("my_form", clear_on_submit=True):
         print(f'updating {uniqueId} in the database')
         classifications = ",".join([categories[i] for i, x in enumerate(category_boxes) if x])
         labelled = True
-        sanitisedSentence = text
+        sanitisedSentence = text if not text.isspace() else st.session_state["items"][item_i]["sentence"]["S"]
 
         response = update_db(uniqueId, classifications, labelled, sanitisedSentence)
         # print(response)

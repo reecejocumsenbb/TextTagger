@@ -4,8 +4,11 @@ import chime
 
 ### Functions to reformat
 
+tableName = "theFieldInclusiveLanguageToolLabelling"
+
 def pull_samples():
     # Get a batch of samples that are not yet labelled
+    
     client = boto3.client('dynamodb')
 
     indexName = 'labelled'
