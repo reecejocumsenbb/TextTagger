@@ -1,3 +1,4 @@
+from io import StringIO
 import streamlit as st
 import scraper.quorascraper as qs
 import chime
@@ -27,13 +28,15 @@ if not st.session_state.use_default:
 
 if file is not None:
     st.write('file get')
-
-    st.session_state.toi = file.read().split('\n')
+    stringio = StringIO(file.getvalue().decode("utf-8"))
+    st.session_state.toi = stringio.read().replace('\r', '').split('\n')
 
 elif st.session_state.use_default:
     file = None
     with open('./scraper/termsofinterest.txt', 'r') as file:
         st.session_state.toi = file.read().split('\n')
+
+st.text(st.session_state.toi)
 
 col1, col2 = st.columns((6, 10))
 
