@@ -1,4 +1,3 @@
-from io import StringIO
 import streamlit as st
 import scraper.quorascraper as qs
 import chime
@@ -10,9 +9,16 @@ hide_menu_style = """
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
 
+st.markdown("### Input Search Terms")
+st.markdown("each example on new line pls")
+text_to_change = st.empty()
+text = text_to_change.text_area(label="Put phrases to search here")
+
+
 chime.theme('material')
 
 st.title("Web Quorler")
+
 st.header("Parameters")
 
 if 'toi' not in st.session_state:
@@ -28,14 +34,14 @@ if not st.session_state.use_default:
 
 if file is not None:
     st.write('file get')
-    stringio = StringIO(file.getvalue().decode("utf-8"))
-    st.session_state.toi = stringio.read().replace('\r', '').split('\n')
+
+    st.session_state.toi = file.read().split('\n')
+
 elif st.session_state.use_default:
     file = None
-    with open('./scraper/termsofinterest.txt', 'r') as file:
-        st.session_state.toi = file.read().split('\n')
-
-st.text(st.session_state.toi)
+    # with open('./scraper/termsofinterest.txt', 'r') as file:
+    #     st.session_state.toi = file.read().split('\n')
+    print(text.split('\n'))
 
 col1, col2 = st.columns((6, 10))
 
