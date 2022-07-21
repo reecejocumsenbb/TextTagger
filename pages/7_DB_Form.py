@@ -176,11 +176,9 @@ except: st.session_state.items_i = 0
 def update_screen():
     
     item_i = st.session_state.items_i
+    print(item_i)
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
-    # get new number of labelled tags
-    out_labelled = get_labelled_entries()['Items']
     num_labelled = len(out_labelled)
-
     print(uniqueIdOut)
     name_container.markdown(f"#### Your Set Name is: {uploader}")
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
@@ -201,7 +199,6 @@ if st.session_state['uploader_name'] == 'undefined':
         if submitted_name:
             if not name.isspace():
                 st.session_state['uploader_name'] = name
-
                 name_container.empty()
                 name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
 else:
@@ -240,12 +237,10 @@ with st.form("my_form", clear_on_submit=True):
     for category in categories:
         category_boxes.append(st.checkbox(category, value=False))
 
-
     ## TEXT BOX
     st.markdown("#### Sequence-to-sequence")
     text_to_change = st.empty()
     text = text_to_change.text_area(label="Change the phrasing of this text to something more inclusive.")
-
 
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit Labels to DB")
