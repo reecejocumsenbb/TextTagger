@@ -168,7 +168,7 @@ def update_screen():
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     print(uniqueIdOut)
-    string_uid.markdown(f"#### Sentence: {st.session_state['items']}")
+    string_uid.markdown(f"#### Sentence: {out_labelled}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
 
 st.markdown("#### Instructions")
