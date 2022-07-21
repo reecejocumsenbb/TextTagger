@@ -86,7 +86,7 @@ def update_mark_for_review(uniqueID):
     return response
 
 
-def update_db(uniqueID, classifications, labelled, sanitisedSentence, datetime, uploader):
+def update_db(uniqueID, classifications, labelled, sanitisedSentence):
 
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
 
@@ -168,7 +168,7 @@ def update_screen():
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     print(uniqueIdOut)
-    string_uid.markdown(f"#### Sentence: {out_labelled}")
+    string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
 
 st.markdown("#### Instructions")
@@ -184,8 +184,7 @@ with st.form("my_form", clear_on_submit=True):
     print('___')
     
     # Progress bar
-    prog_title = st.empty()
-    prog_title.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
+    st.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
     progress = st.progress(num_labelled/NUM_ENTRIES)
     
     string_uid = st.empty()
