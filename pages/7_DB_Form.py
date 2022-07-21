@@ -86,7 +86,7 @@ def update_mark_for_review(uniqueID):
     return response
 
 
-def update_db(uniqueID, classifications, labelled, sanitisedSentence):
+def update_db(uniqueID, classifications, labelled, sanitisedSentence, datetime, uploader):
 
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
 
@@ -123,8 +123,6 @@ def get_labelled_entries():
     # Get a batch of samples that are not yet labelled
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
 
-
-    indexName = 'labelled'
     response = client.scan(
         ExpressionAttributeValues = {
             ":labelled": {
@@ -170,7 +168,7 @@ def update_screen():
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     print(uniqueIdOut)
-    string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
+    string_uid.markdown(f"#### Sentence: {st.session_state['items']}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
 
 st.markdown("#### Instructions")
