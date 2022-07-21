@@ -200,6 +200,7 @@ if uploader == 'undefined':
             if not name.isspace():
                 uploader = name 
                 name_container.empty()
+                name_container.markdown(f"#### Your Set Name is: {uploader}")
 
 else:
     name_container.markdown(f"#### Your Set Name is: {uploader}")
