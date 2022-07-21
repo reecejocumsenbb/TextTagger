@@ -187,7 +187,7 @@ def update_screen():
 
 placeholder_container = st.empty()
 
-if uploader != 'undefined':
+if uploader == 'undefined':
     with placeholder_container.form("name_form",clear_on_submit = False):
         placeholder_container.markdown("#### Set Your Name:")
         name_text = st.empty()
