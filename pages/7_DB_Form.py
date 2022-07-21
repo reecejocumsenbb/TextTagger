@@ -5,6 +5,9 @@ import chime
 
 ## DynamoDB stuff
 import boto3
+
+#number of datapoints that need to be obtained
+NUM_ENTRIES = 3000
 tableName = "theFieldInclusiveLanguageToolLabelling"
 
 
@@ -115,8 +118,7 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
     )
     return response
 
-def get_number_of_entries(tableName):
-    client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
+def get_labelled_entries():
     print("PULLING NEW EXAMPLES FROM THE DB")
     # Get a batch of samples that are not yet labelled
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
@@ -148,6 +150,8 @@ import random
 try: len(st.session_state["items"])
 except: 
     out = pull_samples()['Items']
+    out_labelled = get_labelled_entries()['Items']
+    num_labelled = len(out_labelled)
     random.shuffle(out)
     st.session_state["items"] = out
 
@@ -180,7 +184,12 @@ with st.form("my_form", clear_on_submit=True):
     print('working with item: ' + str(item_i))
     print(st.session_state["items"][item_i])
     print('___')
-
+    
+    # Progress bar
+    prog_title = st.empty()
+    prog_title.markdown(f"#### Progress: {out_labelled} / {NUM_ENTRIES}")
+    progress = st.progress(out_labelled/NUM_ENTRIES)
+    
     string_uid = st.empty()
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     itemz = st.session_state["items"]
