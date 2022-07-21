@@ -1,17 +1,22 @@
 import streamlit as st
 import scraper.quorascraper as qs
 import chime
-
+import datetime
 
 ## DynamoDB stuff
 import boto3
+
+#number of datapoints that need to be obtained
+NUM_ENTRIES = 3000
 tableName = "theFieldInclusiveLanguageToolLabelling"
+
 
 ## dynamo functions to refactor
 def pull_samples():
     print("PULLING NEW EXAMPLES FROM THE DB")
     # Get a batch of samples that are not yet labelled
     client = boto3.client('dynamodb')
+
 
     indexName = 'labelled'
     response = client.scan(
@@ -36,6 +41,7 @@ def pull_samples():
 def update_throw(uniqueID):
 
     client = boto3.client('dynamodb')
+
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
@@ -59,6 +65,7 @@ def update_throw(uniqueID):
 def update_mark_for_review(uniqueID):
 
     client = boto3.client('dynamodb')
+
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
@@ -79,15 +86,19 @@ def update_mark_for_review(uniqueID):
     return response
 
 
-def update_db(uniqueID, classifications, labelled, sanitisedSentence):
+def update_db(uniqueID, classifications, labelled, sanitisedSentence,uploader):
 
     client = boto3.client('dynamodb')
+    upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
             '#labelled': 'labelled',
             '#classifications': 'classifications',
-            '#sanitisedSentence': 'sanitisedSentence'
+            '#sanitisedSentence': 'sanitisedSentence',
+            '#datetime': 'datetime',
+            '#uploader': 'uploader'
         },
         ExpressionAttributeValues = {
             ':labelled': {
@@ -99,28 +110,62 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
             ':sanitisedSentence': {
                 'S': sanitisedSentence
             },
-
+            ':datetime': {
+                'S': upload_datetime
+            },
+            ':uploader': {
+                'S': uploader
+            }
         },
         Key={
             'uniqueID': {
                 'S': uniqueID
             }
         },
-        UpdateExpression='SET #labelled = :labelled, #classifications = :classifications, #sanitisedSentence = :sanitisedSentence'
+        UpdateExpression='SET #labelled = :labelled, #classifications = :classifications, #sanitisedSentence = :sanitisedSentence, #datetime = :datetime, #uploader = :uploader'
     )
     return response
 
+def get_labelled_entries():
+    print("PULLING NEW EXAMPLES FROM THE DB")
+    # Get a batch of samples that are not yet labelled
+    client = boto3.client('dynamodb')
+
+    response = client.scan(
+        ExpressionAttributeValues = {
+            ":labelled": {
+                'BOOL': True
+            },
+            ":throw": {
+                'BOOL': False
+            },
+            ":review": {
+                'BOOL': False
+            }
+        },
+        FilterExpression='labelled = :labelled AND throw = :throw AND review = :review',
+        TableName=tableName,
+    )
+
+    return response
+
+
+
 import random
 
+#local variables
+out_labelled = get_labelled_entries()['Items']
+num_labelled = len(out_labelled)
+categories = []
+if 'uploader_name' not in st.session_state:
+    st.session_state['uploader_name'] = 'undefined' 
+    
 try: len(st.session_state["items"])
 except: 
     out = pull_samples()['Items']
+
     random.shuffle(out)
     st.session_state["items"] = out
-
-
-
-categories = []
 
 with open('categories.txt', 'r') as category_file:
     categories = category_file.read().split('\n') 
@@ -129,15 +174,40 @@ try: print(st.session_state.items_i)
 except: st.session_state.items_i = 0
 
 def update_screen():
-
+    
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
+    # get new number of labelled tags
+    out_labelled = get_labelled_entries()['Items']
+    num_labelled = len(out_labelled)
+
     print(uniqueIdOut)
+    name_container.markdown(f"#### Your Set Name is: {uploader}")
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
+    progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
+   
+
+name_container = st.empty()
+
+if st.session_state['uploader_name'] == 'undefined':
+    with name_container.form("name_form",clear_on_submit = False):
+        st.markdown("#### Set Your Name:")
+        name_text = st.empty()
+        name = name_text.text_area(label="Please type your name here")
+
+        # Every form must have a submit button.
+        submitted_name = st.form_submit_button("Set Name")
+        if submitted_name:
+            if not name.isspace():
+                st.session_state['uploader_name'] = name
+
+                name_container.empty()
+                name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
+else:
+    name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
 
 st.markdown("#### Instructions")
-
 
 
 with st.form("my_form", clear_on_submit=True):
@@ -147,7 +217,13 @@ with st.form("my_form", clear_on_submit=True):
     print('working with item: ' + str(item_i))
     print(st.session_state["items"][item_i])
     print('___')
+    
+    # Progress bar
+    progress_status = st.empty()
+    progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
 
+    progress = st.progress(num_labelled/NUM_ENTRIES)
+    
     string_uid = st.empty()
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
@@ -186,7 +262,7 @@ with st.form("my_form", clear_on_submit=True):
         labelled = True
         sanitisedSentence = text if not text.isspace() else st.session_state["items"][item_i]["sentence"]["S"]
 
-        response = update_db(uniqueId, classifications, labelled, sanitisedSentence)
+        response = update_db(uniqueId, classifications, labelled, sanitisedSentence, st.session_state['uploader_name'])
         # print(response)
         st.session_state.items_i += 1
         update_screen()
