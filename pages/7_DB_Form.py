@@ -180,7 +180,7 @@ def update_screen():
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     num_labelled = len(out_labelled)
     print(uniqueIdOut)
-    name_container.markdown(f"#### Your Set Name is: {uploader}")
+    name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
     progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
