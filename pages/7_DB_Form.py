@@ -186,15 +186,14 @@ def update_screen():
 
 st.markdown("#### Instructions")
 
-
 with st.form("name_form",clear_on_submit = False):
     st.markdown("#### Set Your Name:")
     name_text = st.empty()
     name = name_text.text_area(label="Please type your name here")
 
     # Every form must have a submit button.
-    submitted = st.form_submit_button("Set Name")
-    if submitted:
+    submitted_name = st.form_submit_button("Set Name")
+    if submitted_name:
         if not name.isspace():
             uploader = name 
 
