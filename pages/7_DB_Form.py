@@ -258,7 +258,7 @@ with st.form("my_form", clear_on_submit=True):
         sanitisedSentence = text if not text.isspace() else st.session_state["items"][item_i]["sentence"]["S"]
 
         response = update_db(uniqueId, classifications, labelled, sanitisedSentence, st.session_state['uploader_name'])
-        # print(response)
+        print(response)
         st.session_state.items_i += 1
         update_screen()
 
