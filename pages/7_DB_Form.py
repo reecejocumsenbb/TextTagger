@@ -115,6 +115,34 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
     )
     return response
 
+def get_number_of_entries(tableName):
+    client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
+    print("PULLING NEW EXAMPLES FROM THE DB")
+    # Get a batch of samples that are not yet labelled
+    client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
+
+
+    indexName = 'labelled'
+    response = client.scan(
+        ExpressionAttributeValues = {
+            ":labelled": {
+                'BOOL': True
+            },
+            ":throw": {
+                'BOOL': False
+            },
+            ":review": {
+                'BOOL': False
+            }
+        },
+        FilterExpression='labelled = :labelled AND throw = :throw AND review = :review',
+        TableName=tableName,
+    )
+
+    return response
+
+
+
 import random
 
 try: len(st.session_state["items"])
@@ -134,7 +162,7 @@ try: print(st.session_state.items_i)
 except: st.session_state.items_i = 0
 
 def update_screen():
-
+    
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
     print(uniqueIdOut)
@@ -155,7 +183,8 @@ with st.form("my_form", clear_on_submit=True):
 
     string_uid = st.empty()
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
-    string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
+    resp = get_number_of_entries(tableName)
+    string_uid.markdown(f"#### Sentence: {resp}")
     
     ## REFERENCE SENTENCE
 
