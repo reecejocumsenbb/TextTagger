@@ -156,13 +156,13 @@ import random
 try: len(st.session_state["items"])
 except: 
     out = pull_samples()['Items']
-    out_labelled = get_labelled_entries()['Items']
-    num_labelled = len(out_labelled)
+
     random.shuffle(out)
     st.session_state["items"] = out
 
 
-
+out_labelled = get_labelled_entries()['Items']
+num_labelled = len(out_labelled)
 categories = []
 
 with open('categories.txt', 'r') as category_file:
