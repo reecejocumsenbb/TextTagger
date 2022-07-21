@@ -86,7 +86,7 @@ def update_mark_for_review(uniqueID):
     return response
 
 
-def update_db(uniqueID, classifications, labelled, sanitisedSentence):
+def update_db(uniqueID, classifications, labelled, sanitisedSentence,uploader):
 
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
     upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -114,7 +114,7 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
                 'S': upload_datetime
             },
             ':uploader': {
-                'S': 'test'
+                'S': uploader
             }
         },
         Key={
@@ -164,7 +164,7 @@ except:
 out_labelled = get_labelled_entries()['Items']
 num_labelled = len(out_labelled)
 categories = []
-
+uploader = 'undefined'
 with open('categories.txt', 'r') as category_file:
     categories = category_file.read().split('\n') 
 
@@ -175,13 +175,28 @@ def update_screen():
     
     item_i = st.session_state.items_i
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
+    # get new number of labelled tags
+    out_labelled = get_labelled_entries()['Items']
+    num_labelled = len(out_labelled)
+
     print(uniqueIdOut)
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
+    progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
 
 st.markdown("#### Instructions")
 
 
+with st.form("name_form",clear_on_submit = False):
+    st.markdown("#### Set Your Name:")
+    name_text = st.empty()
+    name = name_text.text_area(label="Please type your name here")
+
+    # Every form must have a submit button.
+    submitted = st.form_submit_button("Set Name")
+    if submitted:
+        if not name.isspace():
+            uploader = name 
 
 with st.form("my_form", clear_on_submit=True):
 
@@ -192,7 +207,9 @@ with st.form("my_form", clear_on_submit=True):
     print('___')
     
     # Progress bar
-    st.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
+    progress_status = st.empty()
+    progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
+
     progress = st.progress(num_labelled/NUM_ENTRIES)
     
     string_uid = st.empty()
@@ -233,7 +250,7 @@ with st.form("my_form", clear_on_submit=True):
         labelled = True
         sanitisedSentence = text if not text.isspace() else st.session_state["items"][item_i]["sentence"]["S"]
 
-        response = update_db(uniqueId, classifications, labelled, sanitisedSentence)
+        response = update_db(uniqueId, classifications, labelled, sanitisedSentence, uploader)
         # print(response)
         st.session_state.items_i += 1
         update_screen()
