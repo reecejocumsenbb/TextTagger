@@ -189,7 +189,7 @@ placeholder_container = st.empty()
 
 if uploader == 'undefined':
     with placeholder_container.form("name_form",clear_on_submit = False):
-        placeholder_container.markdown("#### Set Your Name:")
+        st.markdown("#### Set Your Name:")
         name_text = st.empty()
         name = name_text.text_area(label="Please type your name here")
 
