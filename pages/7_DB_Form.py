@@ -114,7 +114,7 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence,uploader):
                 'S': upload_datetime
             },
             ':uploader': {
-                'S': st.session_state['uploader_name']
+                'S': uploader
             }
         },
         Key={
@@ -262,7 +262,7 @@ with st.form("my_form", clear_on_submit=True):
         labelled = True
         sanitisedSentence = text if not text.isspace() else st.session_state["items"][item_i]["sentence"]["S"]
 
-        response = update_db(uniqueId, classifications, labelled, sanitisedSentence, uploader)
+        response = update_db(uniqueId, classifications, labelled, sanitisedSentence, st.session_state['uploader_name'])
         # print(response)
         st.session_state.items_i += 1
         update_screen()
