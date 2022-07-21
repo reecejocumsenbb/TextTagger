@@ -192,8 +192,7 @@ with st.form("my_form", clear_on_submit=True):
     
     string_uid = st.empty()
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
-    itemz = st.session_state["items"]
-    string_uid.markdown(f"#### Sentence: {itemz}")
+    string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     
     ## REFERENCE SENTENCE
 
