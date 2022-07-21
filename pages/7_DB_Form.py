@@ -8,9 +8,6 @@ import boto3
 
 #number of datapoints that need to be obtained
 NUM_ENTRIES = 3000
-#Flag to check if user has opened the page
-CHECK_VISITED = False
-
 tableName = "theFieldInclusiveLanguageToolLabelling"
 
 
@@ -117,7 +114,7 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence,uploader):
                 'S': upload_datetime
             },
             ':uploader': {
-                'S': uploader
+                'S': st.session_state['uploader_name']
             }
         },
         Key={
@@ -160,8 +157,8 @@ import random
 out_labelled = get_labelled_entries()['Items']
 num_labelled = len(out_labelled)
 categories = []
-if CHECK_VISITED is False:
-    uploader = 'undefined' 
+if 'uploader_name' not in st.session_state:
+    st.session_state['uploader_name'] = 'undefined' 
     
 try: len(st.session_state["items"])
 except: 
@@ -193,7 +190,7 @@ def update_screen():
 
 name_container = st.empty()
 
-if uploader == 'undefined':
+if st.session_state['uploader_name'] == 'undefined':
     with name_container.form("name_form",clear_on_submit = False):
         st.markdown("#### Set Your Name:")
         name_text = st.empty()
@@ -203,13 +200,12 @@ if uploader == 'undefined':
         submitted_name = st.form_submit_button("Set Name")
         if submitted_name:
             if not name.isspace():
-                uploader = name 
-                name_container.empty()
-                name_container.markdown(f"#### Your Set Name is: {uploader}")
-                CHECK_VISITED = True
+                st.session_state['uploader_name'] = name
 
+                name_container.empty()
+                name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
 else:
-    name_container.markdown(f"#### Your Set Name is: {uploader}")
+    name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
 
 st.markdown("#### Instructions")
 
