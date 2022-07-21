@@ -8,6 +8,9 @@ import boto3
 
 #number of datapoints that need to be obtained
 NUM_ENTRIES = 3000
+#Flag to check if user has opened the page
+CHECK_VISITED = False
+
 tableName = "theFieldInclusiveLanguageToolLabelling"
 
 
@@ -153,6 +156,13 @@ def get_labelled_entries():
 
 import random
 
+#local variables
+out_labelled = get_labelled_entries()['Items']
+num_labelled = len(out_labelled)
+categories = []
+if CHECK_VISITED is False:
+    uploader = 'undefined' 
+    
 try: len(st.session_state["items"])
 except: 
     out = pull_samples()['Items']
@@ -160,11 +170,6 @@ except:
     random.shuffle(out)
     st.session_state["items"] = out
 
-
-out_labelled = get_labelled_entries()['Items']
-num_labelled = len(out_labelled)
-categories = []
-uploader = 'undefined'
 with open('categories.txt', 'r') as category_file:
     categories = category_file.read().split('\n') 
 
@@ -201,6 +206,7 @@ if uploader == 'undefined':
                 uploader = name 
                 name_container.empty()
                 name_container.markdown(f"#### Your Set Name is: {uploader}")
+                CHECK_VISITED = True
 
 else:
     name_container.markdown(f"#### Your Set Name is: {uploader}")
