@@ -15,7 +15,7 @@ tableName = "theFieldInclusiveLanguageToolLabelling"
 def pull_samples():
     print("PULLING NEW EXAMPLES FROM THE DB")
     # Get a batch of samples that are not yet labelled
-    client = boto3.client('dynamodb',region_name = 'ap-southeast-2')
+    client = boto3.client('dynamodb')
 
 
     indexName = 'labelled'
@@ -40,7 +40,7 @@ def pull_samples():
 
 def update_throw(uniqueID):
 
-    client = boto3.client('dynamodb',region_name = 'ap-southeast-2')
+    client = boto3.client('dynamodb')
 
     response = client.update_item(
         TableName=tableName,
@@ -64,7 +64,7 @@ def update_throw(uniqueID):
 
 def update_mark_for_review(uniqueID):
 
-    client = boto3.client('dynamodb',region_name = 'ap-southeast-2')
+    client = boto3.client('dynamodb')
 
     response = client.update_item(
         TableName=tableName,
@@ -88,7 +88,7 @@ def update_mark_for_review(uniqueID):
 
 def update_db(uniqueID, classifications, labelled, sanitisedSentence,uploader):
 
-    client = boto3.client('dynamodb',region_name = 'ap-southeast-2')
+    client = boto3.client('dynamodb')
     upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     response = client.update_item(
@@ -129,7 +129,7 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence,uploader):
 def get_labelled_entries():
     print("PULLING NEW EXAMPLES FROM THE DB")
     # Get a batch of samples that are not yet labelled
-    client = boto3.client('dynamodb',region_name = 'ap-southeast-2')
+    client = boto3.client('dynamodb')
 
     response = client.scan(
         ExpressionAttributeValues = {
