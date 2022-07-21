@@ -1,7 +1,7 @@
 import streamlit as st
 import scraper.quorascraper as qs
 import chime
-
+import datetime
 
 ## DynamoDB stuff
 import boto3
@@ -89,13 +89,16 @@ def update_mark_for_review(uniqueID):
 def update_db(uniqueID, classifications, labelled, sanitisedSentence):
 
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
+    upload_datetime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
             '#labelled': 'labelled',
             '#classifications': 'classifications',
-            '#sanitisedSentence': 'sanitisedSentence'
+            '#sanitisedSentence': 'sanitisedSentence',
+            '#datetime': 'datetime',
+            '#uploader': 'uploader'
         },
         ExpressionAttributeValues = {
             ':labelled': {
@@ -107,14 +110,19 @@ def update_db(uniqueID, classifications, labelled, sanitisedSentence):
             ':sanitisedSentence': {
                 'S': sanitisedSentence
             },
-
+            ':datetime': {
+                'S': upload_datetime
+            },
+            ':uploader': {
+                'S': 'test'
+            }
         },
         Key={
             'uniqueID': {
                 'S': uniqueID
             }
         },
-        UpdateExpression='SET #labelled = :labelled, #classifications = :classifications, #sanitisedSentence = :sanitisedSentence'
+        UpdateExpression='SET #labelled = :labelled, #classifications = :classifications, #sanitisedSentence = :sanitisedSentence, #datetime = :datetime, #uploader = :uploader'
     )
     return response
 
