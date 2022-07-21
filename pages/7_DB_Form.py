@@ -180,10 +180,11 @@ def update_screen():
     num_labelled = len(out_labelled)
 
     print(uniqueIdOut)
+    placeholder_container.markdown(f"#### Your Set Name is: {uploader}")
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
     progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
-
+   
 
 placeholder_container = st.empty()
 
@@ -200,7 +201,8 @@ if uploader == 'undefined':
                 uploader = name 
                 placeholder_container.empty()
 else:
-    st.markdown(f"#### Your Set Name is: {uploader}")
+    with placeholder_container:
+        st.markdown(f"#### Your Set Name is: {uploader}")
 
 st.markdown("#### Instructions")
 
