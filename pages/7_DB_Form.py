@@ -187,8 +187,8 @@ with st.form("my_form", clear_on_submit=True):
     
     # Progress bar
     prog_title = st.empty()
-    prog_title.markdown(f"#### Progress: {out_labelled} / {NUM_ENTRIES}")
-    progress = st.progress(out_labelled/NUM_ENTRIES)
+    prog_title.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
+    progress = st.progress(num_labelled/NUM_ENTRIES)
     
     string_uid = st.empty()
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
