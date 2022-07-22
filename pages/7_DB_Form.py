@@ -38,18 +38,26 @@ def pull_samples():
     return response
 
 
-def update_throw(uniqueID):
+def update_throw(uniqueID,uploader):
 
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
-
+    upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
-            '#throw': 'throw'
+            '#throw': 'throw',
+            '#datetime': 'datetime',
+            '#uploader': 'uploader'
         },
         ExpressionAttributeValues = {
             ':throw': {
                 'BOOL': True
+            },
+            ':datetime':{
+                'S': upload_datetime
+            },
+            ':uploader':{
+                'S': uploader
             }
         },
         Key={
@@ -57,31 +65,40 @@ def update_throw(uniqueID):
                 'S': uniqueID
             }
         },
-        UpdateExpression='SET #throw = :throw'
+        UpdateExpression='SET #throw = :throw, #datetime = :datetime, #uploader = :uploader'
     )
 
     return response
 
-def update_mark_for_review(uniqueID):
+def update_mark_for_review(uniqueID,uploader):
 
     client = boto3.client('dynamodb',region_name = 'ap-southeast-2',aws_access_key_id=st.secrets["ACCESS_ID"],aws_secret_access_key=st.secrets["ACCESS_KEY"])
+    upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
-            '#review': 'review'
+            '#review': 'review',
+            '#datetime': 'datetime',
+            '#uploader': 'uploader'
         },
         ExpressionAttributeValues = {
             ':review': {
                 'BOOL': True
+            },
+            ':datetime':{
+                'S': upload_datetime
+            },
+            ':uploader':{
+                'S': uploader
             }
         },
         Key={
             'uniqueID': {
                 'S': uniqueID
             }
-        },
-        UpdateExpression='SET #review = :review'
+        },            
+        UpdateExpression='SET #review = :review, #datetime = :datetime, #uploader = :uploader'
     )
     return response
 
@@ -267,7 +284,7 @@ with st.form("my_form", clear_on_submit=True):
 
         uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
         print(f'updating {uniqueId} in the database')
-        response = update_throw(uniqueId)
+        response = update_throw(uniqueId, st.session_state['uploader_name'])
         # print(response)
         st.session_state.items_i += 1
         update_screen()
@@ -277,7 +294,7 @@ with st.form("my_form", clear_on_submit=True):
 
         uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
         print(f'updating {uniqueId} in the database')
-        response = update_mark_for_review(uniqueId)
+        response = update_mark_for_review(uniqueId, st.session_state['uploader_name'])
         # print(response)
         st.session_state.items_i += 1
         update_screen()
