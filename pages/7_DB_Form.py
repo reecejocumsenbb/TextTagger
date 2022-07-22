@@ -38,18 +38,26 @@ def pull_samples():
     return response
 
 
-def update_throw(uniqueID):
+def update_throw(uniqueID,uploader):
 
     client = boto3.client('dynamodb')
-
+    upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
-            '#throw': 'throw'
+            '#throw': 'throw',
+            '#datetime': 'datetime',
+            '#uploader': 'uploader'
         },
         ExpressionAttributeValues = {
             ':throw': {
                 'BOOL': True
+            },
+            ':datetime':{
+                'S': upload_datetime
+            },
+            ':uploader':{
+                'S': uploader
             }
         },
         Key={
@@ -57,31 +65,40 @@ def update_throw(uniqueID):
                 'S': uniqueID
             }
         },
-        UpdateExpression='SET #throw = :throw'
+        UpdateExpression='SET #throw = :throw, #datetime = :datetime, #uploader = :uploader'
     )
 
     return response
 
-def update_mark_for_review(uniqueID):
+def update_mark_for_review(uniqueID,uploader):
 
     client = boto3.client('dynamodb')
+    upload_datetime = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     response = client.update_item(
         TableName=tableName,
         ExpressionAttributeNames = {
-            '#review': 'review'
+            '#review': 'review',
+            '#datetime': 'datetime',
+            '#uploader': 'uploader'
         },
         ExpressionAttributeValues = {
             ':review': {
                 'BOOL': True
+            },
+            ':datetime':{
+                'S': upload_datetime
+            },
+            ':uploader':{
+                'S': uploader
             }
         },
         Key={
             'uniqueID': {
                 'S': uniqueID
             }
-        },
-        UpdateExpression='SET #review = :review'
+        },            
+        UpdateExpression='SET #review = :review, #datetime = :datetime, #uploader = :uploader'
     )
     return response
 
@@ -176,13 +193,11 @@ except: st.session_state.items_i = 0
 def update_screen():
     
     item_i = st.session_state.items_i
+    print(item_i)
     uniqueIdOut = st.session_state["items"][item_i]['uniqueID']['S']
-    # get new number of labelled tags
-    out_labelled = get_labelled_entries()['Items']
     num_labelled = len(out_labelled)
-
     print(uniqueIdOut)
-    name_container.markdown(f"#### Your Set Name is: {uploader}")
+    name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
     string_uid.markdown(f"#### Sentence: {uniqueIdOut}")
     string_to_see.markdown(f'>{st.session_state["items"][item_i]["sentence"]["S"]}')
     progress_status.markdown(f"#### Progress: {num_labelled} / {NUM_ENTRIES}")
@@ -201,7 +216,6 @@ if st.session_state['uploader_name'] == 'undefined':
         if submitted_name:
             if not name.isspace():
                 st.session_state['uploader_name'] = name
-
                 name_container.empty()
                 name_container.markdown(f"#### Your Set Name is: {st.session_state['uploader_name']}")
 else:
@@ -240,12 +254,10 @@ with st.form("my_form", clear_on_submit=True):
     for category in categories:
         category_boxes.append(st.checkbox(category, value=False))
 
-
     ## TEXT BOX
     st.markdown("#### Sequence-to-sequence")
     text_to_change = st.empty()
     text = text_to_change.text_area(label="Change the phrasing of this text to something more inclusive.")
-
 
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit Labels to DB")
@@ -263,7 +275,7 @@ with st.form("my_form", clear_on_submit=True):
         sanitisedSentence = text if not text.isspace() else st.session_state["items"][item_i]["sentence"]["S"]
 
         response = update_db(uniqueId, classifications, labelled, sanitisedSentence, st.session_state['uploader_name'])
-        # print(response)
+        print(response)
         st.session_state.items_i += 1
         update_screen()
 
@@ -272,7 +284,7 @@ with st.form("my_form", clear_on_submit=True):
 
         uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
         print(f'updating {uniqueId} in the database')
-        response = update_throw(uniqueId)
+        response = update_throw(uniqueId, st.session_state['uploader_name'])
         # print(response)
         st.session_state.items_i += 1
         update_screen()
@@ -282,7 +294,7 @@ with st.form("my_form", clear_on_submit=True):
 
         uniqueId = st.session_state["items"][item_i]["uniqueID"]["S"]
         print(f'updating {uniqueId} in the database')
-        response = update_mark_for_review(uniqueId)
+        response = update_mark_for_review(uniqueId, st.session_state['uploader_name'])
         # print(response)
         st.session_state.items_i += 1
         update_screen()
